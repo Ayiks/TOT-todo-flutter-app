@@ -41,11 +41,11 @@ class _CreateTodoViewState extends State<CreateTodoView> {
                   floatingLabelBehavior: FloatingLabelBehavior.never,
                   focusedBorder: const UnderlineInputBorder(
                       borderSide: BorderSide(color: customBlue))),
-                      validator: (value){
-                        if(value!.isEmpty){
-                          return 'Enter somthing';
-                        }
-                      },
+              validator: (value) {
+                if (value!.isEmpty) {
+                  return 'Enter somthing';
+                }
+              },
             ),
             SizedBox(
               height: 15,
@@ -61,11 +61,11 @@ class _CreateTodoViewState extends State<CreateTodoView> {
                   floatingLabelBehavior: FloatingLabelBehavior.never,
                   focusedBorder: const UnderlineInputBorder(
                       borderSide: BorderSide(color: customBlue))),
-                      validator: (value){
-                        if(value!.isEmpty){
-                          return 'Enter a description';
-                        }
-                      },
+              validator: (value) {
+                if (value!.isEmpty) {
+                  return 'Enter a description';
+                }
+              },
             ),
             SizedBox(
               height: 15,
@@ -99,12 +99,11 @@ class _CreateTodoViewState extends State<CreateTodoView> {
                         floatingLabelBehavior: FloatingLabelBehavior.never,
                         focusedBorder: const UnderlineInputBorder(
                             borderSide: BorderSide(color: customBlue))),
-                            validator: (value){
-                        if(value!.isEmpty){
-                          return 'Please pick a date';
-                        }
-                      },
-                      
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return 'Please pick a date';
+                      }
+                    },
                   ),
                 ),
                 SizedBox(
@@ -134,11 +133,11 @@ class _CreateTodoViewState extends State<CreateTodoView> {
                         floatingLabelBehavior: FloatingLabelBehavior.never,
                         focusedBorder: const UnderlineInputBorder(
                             borderSide: BorderSide(color: customBlue))),
-                            validator: (value){
-                        if(value!.isEmpty){
-                          return 'Please pick a time';
-                        }
-                      },
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return 'Please pick a time';
+                      }
+                    },
                   ),
                 ),
               ],
@@ -148,12 +147,12 @@ class _CreateTodoViewState extends State<CreateTodoView> {
             ),
             TextButton(
               onPressed: () {
-                if(_formKey.currentState!.validate()){
+                if (_formKey.currentState!.validate()) {
                   print(_titleController.text);
                   print(_descriptionController.text);
                   print(_dateController.text);
                   print(_timeController.text);
-                }else{
+                } else {
                   print('Please Enter Something');
                 }
               },
