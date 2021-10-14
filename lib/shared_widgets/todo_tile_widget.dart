@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:todo_app/models/todo.dart';
 import 'package:todo_app/utilities/utils.dart';
 
 class TodoTileWidget extends StatelessWidget {
   const TodoTileWidget({
-    Key? key,required this.status,
+    Key? key,required this.todo,
   }) : super(key: key);
 
-  final bool status;
+  final Datum todo;
 
   @override
   Widget build(BuildContext context) {
@@ -17,31 +18,31 @@ class TodoTileWidget extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 15),
         child: ListTile(
           leading: Icon(
-            status ? Icons.check_circle : Icons.check_circle_outline,
+            todo.status ? Icons.check_circle : Icons.check_circle_outline,
             size: 30,
             color: dateColor(date: 'Yesterday'),
           ),
           title: Text(
-            'Plan the trip to Finland',
+            todo.title,
             style:
                 Theme.of(context).textTheme.bodyText1!.copyWith(fontSize: 20),
           ),
           subtitle: Text(
-            'The family\'s trip to finland next summer',
+            todo.description,
             style: Theme.of(context).textTheme.subtitle1,
           ),
           trailing: TextButton.icon(
               onPressed: () {},
               icon: Icon(
                 Icons.notifications,
-                color: dateColor(date: 'Yesterday'),
+                color: dateColor(date: todo.dateTime),
               ),
               label: Text(
                 'Yesterday',
                 style: Theme.of(context)
                     .textTheme
                     .bodyText2!
-                    .copyWith(color: dateColor(date: 'Yesterday')),
+                    .copyWith(color: dateColor(date: todo.dateTime)),
               )),
         ),
       ),
