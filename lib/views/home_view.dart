@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:todo_app/controllers/todo_controller.dart';
+import 'package:todo_app/models/todo.dart';
 import 'package:todo_app/shared_widgets/todo_tile_widget.dart';
 import 'package:todo_app/utilities/utils.dart';
 import 'package:todo_app/views/create_todo_view.dart';
 
 class HomeView extends StatelessWidget {
-  const HomeView({Key? key}) : super(key: key);
+   HomeView({Key? key}) : super(key: key);
+
+  final TodoController _todoController =TodoController();
 
   @override
   Widget build(BuildContext context) {
@@ -27,31 +31,43 @@ class HomeView extends StatelessWidget {
           IconButton(onPressed: () {}, icon: const Icon(Icons.search)),
         ],
       ),
-      body: ListView.separated(
-          padding: const EdgeInsets.all(16),
-          itemBuilder: (context, index) {
-            return const TodoTileWidget(status: false,);
-          },
-          separatorBuilder: (context, index) {
-            return const SizedBox(
-              height: 10,
-            );
-          },
-          itemCount: 10),
+      body: FutureBuilder<Todo?>(
+          future: _todoController.getAllTodos(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting &&
+                snapshot.data == null) {
+              return const Center(child:  CircularProgressIndicator.adaptive());
+            }
+            if (snapshot.connectionState == ConnectionState.done && snapshot.data == null) {
+              return Text('Somthing went wrong');
+            }
+            return ListView.separated(
+                padding: const EdgeInsets.all(16),
+                itemBuilder: (context, index) {
+                  return  TodoTileWidget(
+                    todo: snapshot.data!.data[index],
+                  );
+                },
+                separatorBuilder: (context, index) {
+                  return const SizedBox(
+                    height: 10,
+                  );
+                },
+                itemCount: snapshot.data!.data.length);
+          }),
       floatingActionButton: FloatingActionButton(
-        onPressed: (){
-          Navigator.of(context).push(MaterialPageRoute(builder: (context){
+        onPressed: () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (context) {
             return CreateTodoView();
           }));
         },
         child: Icon(Icons.add),
-        
       ),
       bottomNavigationBar: SafeArea(
         child: InkWell(
           onTap: () {
             showBarModalBottomSheet(
-                context: context,                
+                context: context,
                 shape: const RoundedRectangleBorder(
                     borderRadius:
                         BorderRadius.vertical(top: Radius.circular(15))),
@@ -64,7 +80,8 @@ class HomeView extends StatelessWidget {
             margin: const EdgeInsets.all(16),
             padding: const EdgeInsets.symmetric(horizontal: 15),
             decoration: BoxDecoration(
-                color: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
+                color:
+                    Theme.of(context).bottomNavigationBarTheme.backgroundColor,
                 borderRadius: BorderRadius.circular(10)),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -106,23 +123,38 @@ class HomeView extends StatelessWidget {
 }
 
 class CompletedTodoWidget extends StatelessWidget {
-  const CompletedTodoWidget({
+ CompletedTodoWidget({
     Key? key,
   }) : super(key: key);
 
+  final TodoController _todoController=TodoController();
+
   @override
   Widget build(BuildContext context) {
-    return ListView.separated(
-          padding: const EdgeInsets.all(16),
-          itemBuilder: (context, index) {
-            return const TodoTileWidget(status: true,);
-          },
-          separatorBuilder: (context, index) {
-            return const SizedBox(
-              height: 10,
-            );
-          },
-          itemCount: 10);
+    return FutureBuilder<Todo?>(
+          future: _todoController.getAllTodos(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting &&
+                snapshot.data == null) {
+              return const Center(child:  CircularProgressIndicator.adaptive());
+            }
+            if (snapshot.connectionState == ConnectionState.done && snapshot.data == null) {
+              
+              return Text('Somthing went wrong');
+            }
+            return ListView.separated(
+                padding: const EdgeInsets.all(16),
+                itemBuilder: (context, index) {
+                  return  TodoTileWidget(
+                    todo: snapshot.data!.data[index],
+                  );
+                },
+                separatorBuilder: (context, index) {
+                  return const SizedBox(
+                    height: 10,
+                  );
+                },
+                itemCount: snapshot.data!.data.length);
+          });
   }
 }
-
