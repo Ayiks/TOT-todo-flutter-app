@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:todo_app/controllers/todo_controller.dart';
 import 'package:todo_app/utilities/utils.dart';
 
 class CreateTodoView extends StatefulWidget {
@@ -17,7 +18,12 @@ class _CreateTodoViewState extends State<CreateTodoView> {
   final TextEditingController _dateController = TextEditingController();
 
   final TextEditingController _timeController = TextEditingController();
+
   final GlobalKey<FormState> _formKey = GlobalKey();
+
+  final TodoController _todoController = TodoController();
+
+  bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -142,26 +148,65 @@ class _CreateTodoViewState extends State<CreateTodoView> {
                 ),
               ],
             ),
-            SizedBox(
+            const SizedBox(
               height: 35,
-            ),
+            ),isLoading ? const Center(child: CircularProgressIndicator()) : 
             TextButton(
-              onPressed: () {
+              onPressed: () async {
                 if (_formKey.currentState!.validate()) {
                   print(_titleController.text);
                   print(_descriptionController.text);
                   print(_dateController.text);
                   print(_timeController.text);
+
+                  String dateTime =
+                      _dateController.text + " " + _timeController.text;
+                  // '${ _dateController.text} ${_timeController.text}';
+
+                  setState(() {
+                    isLoading = true;
+                  });
+
+                  bool isSuccessful = await _todoController.createTodo(
+                      title: _titleController.text,
+                      description: _descriptionController.text,
+                      dateTime: dateTime);
+                      print('createTodo:$isSuccessful');
+                  if (isSuccessful) {
+                    setState(() {
+                      isLoading = false;
+                    });
+                    _timeController.clear();
+                    _titleController.clear();
+                    _dateController.clear();
+                    _descriptionController.clear();
+                    SnackBar snackBar = const SnackBar(
+                      content: Text('Todo created successfully!',
+                          style: TextStyle(color: Colors.green)),
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                  } else {
+                    SnackBar snackBar = const SnackBar(
+                      content: Text('Failed to create Todo!',
+                          style: TextStyle(color: Colors.red)),
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                  }
                 } else {
-                  print('Please Enter Something');
+                  SnackBar snackBar = const SnackBar(
+                    content: Text('All fields are required!',
+                        style: TextStyle(color: Colors.blue)),
+                  );
+                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
                 }
               },
-              child: Text(
+              child: const Text(
                 'Create Todo',
                 style: TextStyle(color: Colors.white),
               ),
+              
               style: TextButton.styleFrom(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(168),
                   backgroundColor: customBlue),
             )
           ],

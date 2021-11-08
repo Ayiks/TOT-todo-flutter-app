@@ -7,9 +7,9 @@ import 'package:todo_app/utilities/utils.dart';
 import 'package:todo_app/views/create_todo_view.dart';
 
 class HomeView extends StatelessWidget {
-   HomeView({Key? key}) : super(key: key);
+  HomeView({Key? key}) : super(key: key);
 
-  final TodoController _todoController =TodoController();
+  final TodoController _todoController = TodoController();
 
   @override
   Widget build(BuildContext context) {
@@ -32,21 +32,113 @@ class HomeView extends StatelessWidget {
         ],
       ),
       body: FutureBuilder<Todo?>(
-          future: _todoController.getAllTodos(),
+          future: _todoController.getAllTodos(status: false),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting &&
                 snapshot.data == null) {
-              return const Center(child:  CircularProgressIndicator.adaptive());
+              return const Center(child: CircularProgressIndicator.adaptive());
             }
-            if (snapshot.connectionState == ConnectionState.done && snapshot.data == null) {
-              return Text('Somthing went wrong');
+            if (snapshot.connectionState == ConnectionState.done &&
+                snapshot.data == null) {
+              return const Text('Somthing went wrong');
             }
             return ListView.separated(
                 padding: const EdgeInsets.all(16),
                 itemBuilder: (context, index) {
-                  return  TodoTileWidget(
-                    todo: snapshot.data!.data[index],
+                  return Dismissible(
+                    secondaryBackground: const Material(
+                      color: Colors.red,
+                      child: Icon(
+                        Icons.delete,
+                        color: Colors.white,
+                      ),
+                    ),
+                    background: const Material(
+                      color: Colors.green,
+                      child: Icon(
+                        Icons.check_circle,
+                        color: Colors.white,
+                      ),
+                    ),
+                    onDismissed: (dismissedDirection) {
+                      SnackBar snackBar = const SnackBar(
+                        content: Text('Todo created successfully!',
+                            style: TextStyle(color: Colors.green)),
+                      );
+                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                    },
+                    confirmDismiss: (dismissedDirection) async {
+                      if (dismissedDirection == DismissDirection.endToStart) {
+                        return showDialog<bool>(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                content:
+                                    Text('Are you sure you want to delete'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () async {
+                                      bool isDeleted =
+                                          await _todoController.deleteTodo(
+                                              snapshot.data!.data[index].id);
+                                      Navigator.of(context).pop(false);
+                                    },
+                                    child: Text('ok'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(false),
+                                    child: Text(
+                                      'Cancel',
+                                      style: TextStyle(color: Colors.red),
+                                    ),
+                                  )
+                                ],
+                              );
+                            });
+                      } else {
+                        return showDialog<bool>(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                content: Text(
+                                    'Are you sure you want to update Todo'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () async {
+                                      bool isUpdate = await _todoController
+                                          .updateTodoStatus(
+                                              id: snapshot.data!.data[index].id,
+                                              status: !snapshot
+                                                  .data!.data[index].status);
+                                      Navigator.of(context).pop(isUpdate);
+                                    },
+                                    child: Text('ok'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(false),
+                                    child: Text(
+                                      'Cancel',
+                                      style: TextStyle(color: Colors.red),
+                                    ),
+                                  )
+                                ],
+                              );
+                            });
+                      }
+                    },
+                    key: UniqueKey(),
+                    child: TodoTileWidget(
+                      todo: snapshot.data!.data[index],
+                    ),
                   );
+
+                  // if (snapshot.data!.data[index].status == false) {
+
+                  // } else {
+                  //  return SizedBox.shrink();
+                  // }
                 },
                 separatorBuilder: (context, index) {
                   return const SizedBox(
@@ -88,7 +180,7 @@ class HomeView extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.check_circle,
                       color: customBlue,
                     ),
@@ -122,39 +214,129 @@ class HomeView extends StatelessWidget {
   }
 }
 
-class CompletedTodoWidget extends StatelessWidget {
- CompletedTodoWidget({
+class CompletedTodoWidget extends StatefulWidget {
+  CompletedTodoWidget({
     Key? key,
   }) : super(key: key);
 
-  final TodoController _todoController=TodoController();
+  @override
+  State<CompletedTodoWidget> createState() => _CompletedTodoWidgetState();
+}
+
+class _CompletedTodoWidgetState extends State<CompletedTodoWidget> {
+  final TodoController _todoController = TodoController();
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Todo?>(
-          future: _todoController.getAllTodos(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting &&
-                snapshot.data == null) {
-              return const Center(child:  CircularProgressIndicator.adaptive());
-            }
-            if (snapshot.connectionState == ConnectionState.done && snapshot.data == null) {
-              
-              return Text('Somthing went wrong');
-            }
-            return ListView.separated(
-                padding: const EdgeInsets.all(16),
-                itemBuilder: (context, index) {
-                  return  TodoTileWidget(
-                    todo: snapshot.data!.data[index],
+        future: _todoController.getAllTodos(status: true),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting &&
+              snapshot.data == null) {
+            return const Center(child: CircularProgressIndicator.adaptive());
+          }
+          if (snapshot.connectionState == ConnectionState.done &&
+              snapshot.data == null) {
+            return const Text('Somthing went wrong');
+          }
+          return ListView.separated(
+              padding: const EdgeInsets.all(16),
+              itemBuilder: (context, index) {
+                return Dismissible(
+                    secondaryBackground: const Material(
+                      color: Colors.red,
+                      child: Icon(
+                        Icons.delete,
+                        color: Colors.white,
+                      ),
+                    ),
+                    background: const Material(
+                      color: Colors.green,
+                      child: Icon(
+                        Icons.check_circle,
+                        color: Colors.white,
+                      ),
+                    ),
+                    onDismissed: (dismissedDirection) {
+                      SnackBar snackBar = const SnackBar(
+                        content: Text('Todo created successfully!',
+                            style: TextStyle(color: Colors.green)),
+                      );
+                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                    },
+                    confirmDismiss: (dismissedDirection) async {
+                      if (dismissedDirection == DismissDirection.endToStart) {
+                        return showDialog<bool>(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                content:
+                                    Text('Are you sure you want to delete'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () async {
+                                      bool isDeleted =
+                                          await _todoController.deleteTodo(
+                                              snapshot.data!.data[index].id);
+                                      Navigator.of(context).pop(false);
+                                    },
+                                    child: Text('ok'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(false),
+                                    child: Text(
+                                      'Cancel',
+                                      style: TextStyle(color: Colors.red),
+                                    ),
+                                  )
+                                ],
+                              );
+                            });
+                      } else {
+                        return showDialog<bool>(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                content: Text(
+                                    'Are you sure you want to update Todo'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () async {
+                                      bool isUpdate = await _todoController
+                                          .updateTodoStatus(
+                                              id: snapshot.data!.data[index].id,
+                                              status: !snapshot
+                                                  .data!.data[index].status);
+                                      Navigator.of(context).pop(isUpdate);
+                                    },
+                                    child: Text('ok'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(false),
+                                    child: Text(
+                                      'Cancel',
+                                      style: TextStyle(color: Colors.red),
+                                    ),
+                                  )
+                                ],
+                              );
+                            });
+                      }
+                    },
+                    key: UniqueKey(),
+                    child: TodoTileWidget(
+                      todo: snapshot.data!.data[index],
+                    ),
                   );
-                },
-                separatorBuilder: (context, index) {
-                  return const SizedBox(
-                    height: 10,
-                  );
-                },
-                itemCount: snapshot.data!.data.length);
-          });
+              },
+              separatorBuilder: (context, index) {
+                return const SizedBox(
+                  height: 10,
+                );
+              },
+              itemCount: snapshot.data!.data.length);
+        });
   }
 }

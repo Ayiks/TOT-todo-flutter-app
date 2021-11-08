@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 const Color customBlue = Color.fromRGBO(47, 59, 109, 1);
 
-Color dateColor({String? date}) {
+Color dateColor(String dateTime, {String? date}) {
   switch (date) {
     case "Yesterday":
       return Colors.pinkAccent;
